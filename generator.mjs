@@ -16,6 +16,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { execFileSync } from 'node:child_process'
 
 const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/
 
@@ -25,13 +26,15 @@ function fail(message) {
 }
 
 function parseArgs(argv) {
-  const args = { name: null, desc: '', out: null }
+  const args = { name: null, desc: '', out: null, verify: false }
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]
     if (arg === '--desc') {
       args.desc = argv[++i] ?? fail('--desc requires a value')
     } else if (arg === '--out') {
       args.out = argv[++i] ?? fail('--out requires a value')
+    } else if (arg === '--verify') {
+      args.verify = true
     } else if (arg.startsWith('-')) {
       fail('unknown option ' + arg)
     } else if (args.name === null) {
@@ -40,7 +43,7 @@ function parseArgs(argv) {
       fail('unexpected argument ' + arg)
     }
   }
-  if (args.name === null) fail('usage: node generator.mjs <plugin-name> [--desc "..."] [--out <dir>]')
+  if (args.name === null) fail('usage: node generator.mjs <plugin-name> [--desc "..."] [--out <dir>] [--verify]')
   if (!KEBAB.test(args.name)) fail('plugin name must be kebab-case, got "' + args.name + '"')
   return args
 }
@@ -74,6 +77,19 @@ function main() {
   }
   copyTemplateDir(srcDir, outDir, { name: args.name, desc: args.desc || 'A DeepSeek Harness plugin.', pkg: args.name })
   console.log('created ' + outDir)
+
+  if (args.verify) {
+    console.log('verifying: running the generated project tests...')
+    const env = { ...process.env }
+    delete env.NODE_TEST_CONTEXT
+    try {
+      execFileSync(process.execPath, ['--test'], { cwd: outDir, stdio: 'inherit', env })
+      console.log('verify: PASS')
+    } catch {
+      fail('generated project tests failed; inspect the output above')
+    }
+  }
+
   console.log('')
   console.log('next steps:')
   console.log('  1. edit ' + join(outDir, 'index.js') + ' and the skill in ' + join(outDir, 'skills', args.name, 'SKILL.md'))
