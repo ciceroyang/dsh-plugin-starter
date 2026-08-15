@@ -1,4 +1,4 @@
-# create-dsh-plugin
+# dsh-plugin-starter
 
 一键生成"实战验证过"的 DeepSeek Harness 插件工程:宿主插件 + 工具 + 运行时 skill + 单测 + CI + bundle 协议,全部按社区踩坑经验预置,零依赖、免构建。
 

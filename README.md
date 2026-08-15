@@ -1,4 +1,4 @@
-# create-dsh-plugin
+# dsh-plugin-starter
 
 Scaffold a battle-tested DeepSeek Harness plugin in one command: host plugin,
 tool, runtime skill, unit tests, CI, and the bundle manifest — zero
