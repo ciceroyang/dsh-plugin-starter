@@ -2,7 +2,7 @@
 
 {{DESC}}
 
-Generated with [create-dsh-plugin](https://github.com/ciceroyang/create-dsh-plugin).
+Generated with [dsh-plugin-starter](https://github.com/ciceroyang/dsh-plugin-starter).
 
 ## 结构
 

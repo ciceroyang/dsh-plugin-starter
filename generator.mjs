@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * create-dsh-plugin — scaffold a battle-tested DeepSeek Harness plugin.
+ * dsh-plugin-starter — scaffold a battle-tested DeepSeek Harness plugin.
  *
  * Zero dependencies, plain ESM, Node >= 18. Copies the templates/ directory,
  * replacing {{NAME}} (kebab-case plugin id), {{DESC}} (one-line description),
@@ -10,7 +10,7 @@
  *   node generator.mjs my-plugin --desc "One-line description"
  *   node generator.mjs my-plugin --out ./packages/my-plugin
  *
- * @module create-dsh-plugin
+ * @module dsh-plugin-starter
  */
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
