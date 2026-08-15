@@ -1,7 +1,7 @@
 /**
  * Generator tests: run the scaffold into a temp directory and verify the
  * token replacement and file layout.
- * @module create-dsh-plugin/tests/generator
+ * @module dsh-plugin-starter/tests/generator
  */
 
 import { test } from 'node:test'
