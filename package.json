@@ -1,5 +1,5 @@
 {
-  "name": "create-dsh-plugin",
+  "name": "dsh-plugin-starter",
   "version": "0.1.0",
   "description": "Scaffold a battle-tested DeepSeek Harness plugin (bundle, tool, skill, tests, CI) in one command",
   "type": "module",
