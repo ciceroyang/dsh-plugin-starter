@@ -1,0 +1,4 @@
+# {{NAME}} bundle patch layer — applied to any profile listing this bundle.
+- insert:
+    - id: {{NAME}}
+      name: {{PKG_NAME}}
