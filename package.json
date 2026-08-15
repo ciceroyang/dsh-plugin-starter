@@ -4,7 +4,7 @@
   "description": "Scaffold a battle-tested DeepSeek Harness plugin (bundle, tool, skill, tests, CI) in one command",
   "type": "module",
   "bin": {
-    "create-dsh-plugin": "generator.mjs"
+    "dsh-plugin-starter": "generator.mjs"
   },
   "files": [
     "generator.mjs",
@@ -23,7 +23,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ciceroyang/create-dsh-plugin.git"
+    "url": "git+https://github.com/ciceroyang/dsh-plugin-starter.git"
   },
   "engines": {
     "node": ">=18"
