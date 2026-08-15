@@ -8,6 +8,7 @@ dependencies, no build step.
 
     node generator.mjs my-plugin --desc "One-line description"
     node generator.mjs my-plugin --out ./packages/my-plugin
+    node generator.mjs my-plugin --verify   # smoke-test right after scaffolding
 
 The scaffold passes its own tests immediately (run node --test inside it).
 

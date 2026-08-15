@@ -7,6 +7,8 @@
     node generator.mjs my-plugin --desc "一句话描述"
     # 或指定输出目录
     node generator.mjs my-plugin --out ./packages/my-plugin
+    # 生成后立刻跑冒烟测试
+    node generator.mjs my-plugin --verify
 
 生成的结构:
 

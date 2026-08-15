@@ -52,6 +52,14 @@ test('scaffolded project passes its own tests', () => {
   rmSync(dir, { recursive: true, force: true })
 })
 
+test('--verify runs the generated project tests and passes', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cdp-v-'))
+  const out = join(dir, 'out')
+  const result = execFileSync(process.execPath, [GENERATOR, 'verify-demo', '--out', out, '--verify'], { stdio: 'pipe', encoding: 'utf8' })
+  assert.ok(result.includes('verify: PASS'), 'verify should report PASS')
+  rmSync(dir, { recursive: true, force: true })
+})
+
 test('generator rejects invalid names', () => {
   const dir = mkdtempSync(join(tmpdir(), 'cdp-bad-'))
   for (const bad of ['BadName', 'has_underscore', '-leading', 'two--dashes', '9start']) {
