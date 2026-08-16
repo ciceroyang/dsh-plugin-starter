@@ -9,6 +9,8 @@
     node generator.mjs my-plugin --out ./packages/my-plugin
     # 生成后立刻跑冒烟测试
     node generator.mjs my-plugin --verify
+    # 带设置卡片(client 半,需要 tsdown + React)
+    node generator.mjs my-plugin --with-settings
 
 生成的结构:
 
@@ -32,6 +34,10 @@
 - 注册是效果:disposer 收集与卸载清理
 - 可选服务用 ctx.get('skills') 而不是 inject
 - 单测保持纯函数,不依赖 harness 服务
+
+## 设置卡片变体(--with-settings)
+
+在基础工程上追加:client/index.tsx(settings.section 注册 + 最小表单)、dsh.client manifest、tsdown 构建脚本与依赖。生成后 `pnpm install && pnpm build` 产出 lib/client.js。注意 settings RPC 是 loopback-only(远程浏览器设置页不可用)。完整机制见 docs/settings-guide.md。
 
 ## 发布你的插件
 

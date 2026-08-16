@@ -52,6 +52,22 @@ test('scaffolded project passes its own tests', () => {
   rmSync(dir, { recursive: true, force: true })
 })
 
+test('--with-settings generates the client half and merged manifest', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cdp-s-'))
+  const out = join(dir, 'out')
+  execFileSync(process.execPath, [GENERATOR, 'my-settings-plugin', '--out', out, '--with-settings'], { stdio: 'pipe' })
+  assert.ok(existsSync(join(out, 'client/index.tsx')), 'client half missing')
+  const tsx = readFileSync(join(out, 'client/index.tsx'), 'utf8')
+  assert.ok(tsx.includes('MySettingsPluginState'), 'pascal token not replaced')
+  assert.ok(!tsx.includes('{{'))
+  const pkg = JSON.parse(readFileSync(join(out, 'package.json'), 'utf8'))
+  assert.equal(pkg.dsh.client.platform, 'web')
+  assert.equal(pkg.exports['./client'], './lib/client.js')
+  assert.equal(pkg.scripts.build, 'tsdown')
+  assert.ok(pkg.peerDependencies['@deepseek-ai/schemastery'])
+  rmSync(dir, { recursive: true, force: true })
+})
+
 test('--verify runs the generated project tests and passes', () => {
   const dir = mkdtempSync(join(tmpdir(), 'cdp-v-'))
   const out = join(dir, 'out')

@@ -25,8 +25,12 @@ function fail(message) {
   process.exit(1)
 }
 
+function pascalCase(name) {
+  return name.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join('')
+}
+
 function parseArgs(argv) {
-  const args = { name: null, desc: '', out: null, verify: false }
+  const args = { name: null, desc: '', out: null, verify: false, withSettings: false }
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]
     if (arg === '--desc') {
@@ -35,6 +39,8 @@ function parseArgs(argv) {
       args.out = argv[++i] ?? fail('--out requires a value')
     } else if (arg === '--verify') {
       args.verify = true
+    } else if (arg === '--with-settings') {
+      args.withSettings = true
     } else if (arg.startsWith('-')) {
       fail('unknown option ' + arg)
     } else if (args.name === null) {
@@ -43,7 +49,7 @@ function parseArgs(argv) {
       fail('unexpected argument ' + arg)
     }
   }
-  if (args.name === null) fail('usage: node generator.mjs <plugin-name> [--desc "..."] [--out <dir>] [--verify]')
+  if (args.name === null) fail('usage: node generator.mjs <plugin-name> [--desc "..."] [--out <dir>] [--verify] [--with-settings]')
   if (!KEBAB.test(args.name)) fail('plugin name must be kebab-case, got "' + args.name + '"')
   return args
 }
@@ -59,12 +65,52 @@ function copyTemplateDir(srcDir, destDir, tokens) {
     }
     const text = readFileSync(src, 'utf8')
     let out = text.split('{{NAME}}').join(tokens.name)
+    out = out.split('{{PascalName}}').join(tokens.pascal ?? '')
     out = out.split('{{DESC}}').join(tokens.desc)
     out = out.split('{{PKG_NAME}}').join(tokens.pkg)
     const dest = join(destDir, entry)
     mkdirSync(join(dest, '..'), { recursive: true })
     writeFileSync(dest, out, 'utf8')
   }
+}
+
+/**
+ * Merge the --with-settings overlay into the generated package.json.
+ * @param {string} outDir - generated project root.
+ * @param {object} tokens - name/pascal tokens.
+ */
+function mergeSettingsManifest(outDir, tokens) {
+  const pkgFile = join(outDir, 'package.json')
+  const pkg = JSON.parse(readFileSync(pkgFile, 'utf8'))
+  pkg.dsh = {
+    client: {
+      inject: [
+        '@deepseek-ai/dsh-client-ui-settings',
+        '@deepseek-ai/dsh-api-remotes',
+        '@deepseek-ai/dsh-client-locale',
+        '@deepseek-ai/dsh-client-runtime',
+      ],
+      platform: 'web',
+    },
+  }
+  pkg.exports = { './client': './lib/client.js' }
+  pkg.scripts = { ...(pkg.scripts ?? {}), build: 'tsdown' }
+  pkg.peerDependencies = {
+    ...(pkg.peerDependencies ?? {}),
+    '@deepseek-ai/schemastery': '*',
+    '@deepseek-ai/dsh-client-ui-settings': '*',
+    '@deepseek-ai/dsh-api-remotes': '*',
+    '@deepseek-ai/dsh-client-locale': '*',
+    '@deepseek-ai/dsh-client-runtime': '*',
+  }
+  pkg.devDependencies = {
+    ...(pkg.devDependencies ?? {}),
+    tsdown: '^0.10.0',
+    react: '^18.2.0',
+    '@types/react': '~18.3.1',
+  }
+  pkg.files = [...new Set([...(pkg.files ?? []), 'lib'])].filter((f) => f !== 'client')
+  writeFileSync(pkgFile, JSON.stringify(pkg, null, 2) + '\n')
 }
 
 function main() {
@@ -75,8 +121,13 @@ function main() {
   if (existsSync(outDir) && readdirSync(outDir).length > 0) {
     fail('target directory is not empty: ' + outDir)
   }
-  copyTemplateDir(srcDir, outDir, { name: args.name, desc: args.desc || 'A DeepSeek Harness plugin.', pkg: args.name })
-  console.log('created ' + outDir)
+  const tokens = { name: args.name, desc: args.desc || 'A DeepSeek Harness plugin.', pkg: args.name, pascal: pascalCase(args.name) }
+  copyTemplateDir(srcDir, outDir, tokens)
+  if (args.withSettings) {
+    copyTemplateDir(join(here, 'templates-settings'), outDir, tokens)
+    mergeSettingsManifest(outDir, tokens)
+  }
+  console.log('created ' + outDir + (args.withSettings ? ' (with settings section)' : ''))
 
   if (args.verify) {
     console.log('verifying: running the generated project tests...')
@@ -94,9 +145,10 @@ function main() {
   console.log('next steps:')
   console.log('  1. edit ' + join(outDir, 'index.js') + ' and the skill in ' + join(outDir, 'skills', args.name, 'SKILL.md'))
   console.log('  2. run tests:  cd ' + outDir + ' && node --test')
-  console.log('  3. dev-load it: dsh web --patch <overlay with absolute path to ' + join(outDir, 'index.js') + '>')
-  console.log('  4. install it:  dsh plugin --profile web add ' + outDir)
-  console.log('  5. publish: tag the repo with the dsh-plugin topic')
+  if (args.withSettings) console.log('  3. build the client half: cd ' + outDir + ' && pnpm install && pnpm build')
+  console.log('  ' + (args.withSettings ? '4' : '3') + '. dev-load it: dsh web --patch <overlay with absolute path to ' + join(outDir, 'index.js') + '>')
+  console.log('  ' + (args.withSettings ? '5' : '4') + '. install it:  dsh plugin --profile web add ' + outDir)
+  console.log('  ' + (args.withSettings ? '6' : '5') + '. publish: tag the repo with the dsh-plugin topic')
 }
 
 main()
