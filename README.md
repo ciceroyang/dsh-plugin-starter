@@ -9,6 +9,7 @@ dependencies, no build step.
     node generator.mjs my-plugin --desc "One-line description"
     node generator.mjs my-plugin --out ./packages/my-plugin
     node generator.mjs my-plugin --verify   # smoke-test right after scaffolding
+    node generator.mjs my-plugin --with-settings   # settings card (client half, tsdown + React)
 
 The scaffold passes its own tests immediately (run node --test inside it).
 
@@ -30,6 +31,10 @@ The template encodes community pitfalls (see the tutorial):
 - registrations are effects: collect disposers, clean up on unload
 - optional services via ctx.get('skills'), not inject
 - keep deterministic logic in lib/ so tests stay harness-free
+
+## Settings-card variant (--with-settings)
+
+Adds client/index.tsx (settings.section registration + minimal form), the dsh.client manifest, and tsdown build scripts/deps on top of the base scaffold. After generation run `pnpm install && pnpm build` to emit lib/client.js. The settings RPC is loopback-only (remote browsers get no settings page). Full mechanism: docs/settings-guide.md.
 
 ## Publishing your plugin
 
