@@ -1,8 +1,17 @@
 # dsh-plugin-starter
 
-一键生成"实战验证过"的 DeepSeek Harness 插件工程:宿主插件 + 工具 + 运行时 skill + 单测 + CI + bundle 协议,全部按社区踩坑经验预置,零依赖、免构建。
+一键生成"实战验证过"的 DeepSeek Harness 插件工程:宿主插件 + 工具 + 运行时 skill + 单测 + CI + bundle 协议。基础脚手架零运行时依赖、无需构建;可选的 `--with-settings` 变体会加入构建工具。
 
-## 用法
+## 快速开始
+
+需要 Node.js 18 或更高版本。无需克隆，直接从 GitHub 运行：
+
+    npx --yes github:ciceroyang/dsh-plugin-starter my-plugin --verify
+
+也可以克隆源码：
+
+    git clone https://github.com/ciceroyang/dsh-plugin-starter.git
+    cd dsh-plugin-starter
 
     node generator.mjs my-plugin --desc "一句话描述"
     # 或指定输出目录

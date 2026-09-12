@@ -1,10 +1,20 @@
 # dsh-plugin-starter
 
 Scaffold a battle-tested DeepSeek Harness plugin in one command: host plugin,
-tool, runtime skill, unit tests, CI, and the bundle manifest — zero
-dependencies, no build step.
+tool, runtime skill, unit tests, CI, and the bundle manifest. The base scaffold
+has zero runtime dependencies and no build step; the optional
+`--with-settings` variant adds build tooling.
 
-## Usage
+## Quick start
+
+Requires Node.js 18 or later. Run directly from GitHub without cloning:
+
+    npx --yes github:ciceroyang/dsh-plugin-starter my-plugin --verify
+
+Or clone the source:
+
+    git clone https://github.com/ciceroyang/dsh-plugin-starter.git
+    cd dsh-plugin-starter
 
     node generator.mjs my-plugin --desc "One-line description"
     node generator.mjs my-plugin --out ./packages/my-plugin
