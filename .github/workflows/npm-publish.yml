@@ -1,0 +1,38 @@
+# Trusted Publishing: npm is told which repository and which workflow may publish, and
+# GitHub proves it with an OIDC token. There is no npm token in this repository to steal,
+# and the published tarball carries a provenance attestation naming this commit.
+#
+# One-time setup on npmjs.com: package -> Settings -> Trusted Publisher -> GitHub Actions,
+# repository ciceroyang/dsh-plugin-starter, workflow npm-publish.yml.
+name: npm publish
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          # Trusted Publishing exchanges the OIDC token for a short-lived publish token;
+          # the registry has to be named for that exchange, and no secret is stored here.
+          registry-url: "https://registry.npmjs.org"
+      - name: Refuse to publish if the tests fail
+        run: npm test
+      - name: Refuse to publish a tag that does not match the version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(node -p "require('./package.json').version")"
+          test "$tag" = "$version" || { echo "tag $tag does not match version $version"; exit 1; }
+      - name: Publish with provenance
+        run: npm publish --provenance --access public
